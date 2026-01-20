@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zero Shadow Days Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .info-section {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            color: #333;
+            font-size: 16px;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        
+        button:hover {
+            background: #764ba2;
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .error {
+            background: #fee;
+            border-left: 4px solid #c33;
+            color: #c33;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .results {
+            margin-top: 30px;
+        }
+        
+        .results h2 {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .result-item {
+            background: #e8f4fd;
+            border-left: 4px solid #667eea;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            color: #333;
+        }
+        
+        .result-date {
+            font-weight: 600;
+        }
+        
+        .result-time {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌑 Zero Shadow Days Calculator</h1>
+        
+        <button id="getLocationBtn" onclick="getLocationAndCalculate()">Get My Location & Calculate</button>
+        
+        <div id="error" class="error" style="display: none;"></div>
+        
+        <div id="loading" class="loading" style="display: none;">
+            <p>Getting your location...</p>
+        </div>
+        
+        <div id="info" style="display: none;">
+            <div class="info-section">
+                <div class="info-label">📍 Latitude</div>
+                <div class="info-value" id="latitude">—</div>
+            </div>
+            
+            <div class="info-section">
+                <div class="info-label">📍 Longitude</div>
+                <div class="info-value" id="longitude">—</div>
+            </div>
+            
+            <div class="info-section">
+                <div class="info-label">🕐 Your Timezone</div>
+                <div class="info-value" id="timezone">—</div>
+            </div>
+            
+            <div class="info-section">
+                <div class="info-label">📅 Year</div>
+                <div class="info-value" id="year">—</div>
+            </div>
+        </div>
+        
+        <div id="results" class="results" style="display: none;">
+            <h2>Zero Shadow Days</h2>
+            <p style="color: #666; margin-bottom: 15px;">Days when the sun is directly overhead (zero shadow at solar noon):</p>
+            <div id="resultsList"></div>
+        </div>
+    </div>
+
+    <script>
+        // Solar math functions (converted from Python)
+        function deg2rad(d) {
+            return d * Math.PI / 180.0;
+        }
+        
+        function rad2deg(r) {
+            return r * 180.0 / Math.PI;
+        }
+        
+        function solarDeclination(dayOfYear) {
+            const gamma = 2 * Math.PI / 365 * (dayOfYear - 1);
+            const decl = (
+                0.006918
+                - 0.399912 * Math.cos(gamma)
+                + 0.070257 * Math.sin(gamma)
+                - 0.006758 * Math.cos(2 * gamma)
+                + 0.000907 * Math.sin(2 * gamma)
+                - 0.002697 * Math.cos(3 * gamma)
+                + 0.00148 * Math.sin(3 * gamma)
+            );
+            return rad2deg(decl);
+        }
+        
+        function equationOfTime(dayOfYear) {
+            const gamma = 2 * Math.PI / 365 * (dayOfYear - 1);
+            const eot = (
+                229.18 * (
+                    0.000075
+                    + 0.001868 * Math.cos(gamma)
+                    - 0.032077 * Math.sin(gamma)
+                    - 0.014615 * Math.cos(2 * gamma)
+                    - 0.040849 * Math.sin(2 * gamma)
+                )
+            );
+            return eot; // minutes
+        }
+        
+        function getTimezoneOffset(timezone) {
+            const date = new Date();
+            const utcDate = new Date(date.toLocaleString('en-US', {timeZone: 'UTC'}));
+            const tzDate = new Date(date.toLocaleString('en-US', {timeZone: timezone}));
+            const offset = (tzDate - utcDate) / (1000 * 60); // in minutes
+            return offset / 60; // convert to hours
+        }
+        
+        function solarNoon(dayOfYear, longitude, timezoneOffset) {
+            const eot = equationOfTime(dayOfYear);
+            const solarNoonMinutes = 720 - 4 * longitude - eot + timezoneOffset * 60;
+            return solarNoonMinutes;
+        }
+        
+        function calculateZeroShadowDates(latitude, longitude, year, timezone) {
+            const results = [];
+            
+            for (let day = 1; day <= 366; day++) {
+                const decl = solarDeclination(day);
+                if (Math.abs(decl - latitude) < 0.1) {
+                    results.push(day);
+                }
+            }
+            
+            // Deduplicate close days
+            const filteredDays = [];
+            for (let d of results) {
+                if (filteredDays.length === 0 || Math.abs(d - filteredDays[filteredDays.length - 1]) > 3) {
+                    filteredDays.push(d);
+                }
+            }
+            
+            // Format results with times
+            const timezoneOffset = getTimezoneOffset(timezone);
+            const output = [];
+            
+            for (let day of filteredDays) {
+                const noonMinutes = solarNoon(day, longitude, timezoneOffset);
+                const hours = Math.floor(noonMinutes / 60);
+                const minutes = Math.floor(noonMinutes % 60);
+                
+                const date = new Date(year, 0, day);
+                const dateStr = date.toISOString().split('T')[0];
+                const timeStr = String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0');
+                
+                output.push({
+                    date: dateStr,
+                    time: timeStr
+                });
+            }
+            
+            return output;
+        }
+        
+        function getUserTimezone() {
+            return Intl.DateTimeFormat().resolvedOptions().timeZone;
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        
+        function hideError() {
+            document.getElementById('error').style.display = 'none';
+        }
+        
+        function getLocationAndCalculate() {
+            hideError();
+            const btn = document.getElementById('getLocationBtn');
+            const loading = document.getElementById('loading');
+            
+            btn.disabled = true;
+            loading.style.display = 'block';
+            
+            if (!navigator.geolocation) {
+                showError('Geolocation is not supported by your browser.');
+                btn.disabled = false;
+                loading.style.display = 'none';
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+                    const timezone = getUserTimezone();
+                    const year = new Date().getFullYear();
+                    
+                    // Display info
+                    document.getElementById('latitude').textContent = latitude.toFixed(4);
+                    document.getElementById('longitude').textContent = longitude.toFixed(4);
+                    document.getElementById('timezone').textContent = timezone;
+                    document.getElementById('year').textContent = year;
+                    document.getElementById('info').style.display = 'block';
+                    
+                    // Check if location is within tropical zone (23.44° N to 23.44° S)
+                    const TropicOfCancer = 23.44;
+                    const TropicOfCapricorn = -23.44;
+                    
+                    const resultsList = document.getElementById('resultsList');
+                    resultsList.innerHTML = '';
+                    
+                    if (latitude > TropicOfCancer || latitude < TropicOfCapricorn) {
+                        resultsList.innerHTML = `
+                            <div class="error" style="margin: 0;">
+                                <strong>No zero shadow days at your location.</strong><br>
+                                Zero shadow days only occur between the Tropic of Cancer (23.44° N) and the Tropic of Capricorn (23.44° S).
+                                Your location at ${Math.abs(latitude).toFixed(2)}° ${latitude > 0 ? 'N' : 'S'} is outside this range.
+                            </div>
+                        `;
+                    } else {
+                        // Calculate zero shadow dates
+                        const results = calculateZeroShadowDates(latitude, longitude, year, timezone);
+                        
+                        if (results.length === 0) {
+                            resultsList.innerHTML = '<p style="color: #666;">No zero shadow days at your location this year.</p>';
+                        } else {
+                            results.forEach(result => {
+                                const item = document.createElement('div');
+                                item.className = 'result-item';
+                                item.innerHTML = `
+                                    <div class="result-date">${result.date}</div>
+                                    <div class="result-time">Solar noon: ${result.time} ${timezone}</div>
+                                `;
+                                resultsList.appendChild(item);
+                            });
+                        }
+                    }
+                    
+                    document.getElementById('results').style.display = 'block';
+                    loading.style.display = 'none';
+                    btn.disabled = false;
+                },
+                (error) => {
+                    let message = 'Unable to get your location.';
+                    if (error.code === error.PERMISSION_DENIED) {
+                        message = 'Location permission denied. Please enable location access in your browser settings.';
+                    } else if (error.code === error.TIMEOUT) {
+                        message = 'Location request timed out.';
+                    }
+                    showError(message);
+                    loading.style.display = 'none';
+                    btn.disabled = false;
+                }
+            );
+        }
+    </script>
+</body>
+</html>
