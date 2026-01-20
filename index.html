@@ -4,6 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zero Shadow Days Calculator</title>
+    <meta name="description" content="Calculate zero shadow days - when the sun passes directly overhead at solar noon and vertical objects cast no shadow. Occurs only between the tropics.">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://zeroshadowday.zavyalov.site/">
+    <meta property="og:title" content="Zero Shadow Days Calculator">
+    <meta property="og:description" content="Calculate zero shadow days - when the sun passes directly overhead at solar noon and vertical objects cast no shadow. Occurs only between the tropics.">
+    <meta property="og:image" content="https://zeroshadowday.zavyalov.site/lahaina-noon.jpg">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://zeroshadowday.zavyalov.site/">
+    <meta property="twitter:title" content="Zero Shadow Days Calculator">
+    <meta property="twitter:description" content="Calculate zero shadow days - when the sun passes directly overhead at solar noon and vertical objects cast no shadow. Occurs only between the tropics.">
+    <meta property="twitter:image" content="https://zeroshadowday.zavyalov.site/lahaina-noon.jpg">
+    
+    <link rel="icon" type="image/jpeg" href="lahaina-icon.jpg">
+    <link rel="apple-touch-icon" href="lahaina-icon.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -119,11 +138,129 @@
             color: #666;
             font-size: 14px;
         }
+        
+        .calendar-btn {
+            display: inline-block;
+            margin-top: 8px;
+            margin-right: 8px;
+            padding: 6px 12px;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 13px;
+            transition: background 0.3s ease;
+        }
+        
+        .calendar-btn.google {
+            background: #4285f4;
+        }
+        
+        .calendar-btn.google:hover {
+            background: #3367d6;
+        }
+        
+        .calendar-btn.apple {
+            background: #555;
+        }
+        
+        .calendar-btn.apple:hover {
+            background: #333;
+        }
+        
+        .calendar-btn.outlook {
+            background: #0078d4;
+        }
+        
+        .calendar-btn.outlook:hover {
+            background: #106ebe;
+        }
+        
+        .calendar-buttons {
+            margin-top: 8px;
+        }
+
+        /* Cities table */
+        .cities-section {
+            margin-top: 30px;
+        }
+        .cities-section h2 {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        table.cities {
+            width: 100%;
+            border-collapse: collapse;
+            background: #f8f9fa;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        table.cities th, table.cities td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+            font-size: 14px;
+            color: #333;
+        }
+        table.cities th {
+            background: #eef2ff;
+            font-weight: 600;
+        }
+        table.cities tr:last-child td {
+            border-bottom: none;
+        }
+        .city-btn {
+            background: #667eea;
+            color: #fff;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .city-btn:hover { background: #564fd1; }
+
+        /* Footer */
+        .footer {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #e5e7eb;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .footer a:hover {
+            color: #764ba2;
+        }
+        .footer .divider {
+            margin: 0 8px;
+            color: #ccc;
+        }
     </style>
 </head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RTDKZSF9G7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-RTDKZSF9G7');
+</script>
 <body>
     <div class="container">
         <h1>🌑 Zero Shadow Days Calculator</h1>
+        
+        <p style="text-align: center; color: #666; margin-bottom: 25px; line-height: 1.6;">
+            Calculate the days when the sun passes directly overhead and vertical objects cast no shadow.
+            <br>
+            <a href="https://en.wikipedia.org/wiki/Lahaina_Noon" target="_blank" style="color: #667eea; text-decoration: none; font-weight: 500;">Learn more on Wikipedia →</a>
+        </p>
         
         <button id="getLocationBtn" onclick="getLocationAndCalculate()">Get My Location & Calculate</button>
         
@@ -134,35 +271,160 @@
         </div>
         
         <div id="info" style="display: none;">
-            <div class="info-section">
-                <div class="info-label">📍 Latitude</div>
-                <div class="info-value" id="latitude">—</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                <div>
+                    <label for="latitudeInput" style="display: block; margin-bottom: 5px; font-weight: 600; color: #555;">📍 Latitude</label>
+                    <input type="number" id="latitudeInput" step="0.0001" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;">
+                </div>
+                <div>
+                    <label for="longitudeInput" style="display: block; margin-bottom: 5px; font-weight: 600; color: #555;">📍 Longitude</label>
+                    <input type="number" id="longitudeInput" step="0.0001" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;">
+                </div>
+                <div>
+                    <label for="timezoneInput" style="display: block; margin-bottom: 5px; font-weight: 600; color: #555;">🕐 Timezone</label>
+                    <input type="text" id="timezoneInput" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;">
+                </div>
+                <div>
+                    <label for="yearInput" style="display: block; margin-bottom: 5px; font-weight: 600; color: #555;">📅 Year</label>
+                    <input type="number" id="yearInput" min="2000" max="2100" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;">
+                </div>
             </div>
-            
-            <div class="info-section">
-                <div class="info-label">📍 Longitude</div>
-                <div class="info-value" id="longitude">—</div>
-            </div>
-            
-            <div class="info-section">
-                <div class="info-label">🕐 Your Timezone</div>
-                <div class="info-value" id="timezone">—</div>
-            </div>
-            
-            <div class="info-section">
-                <div class="info-label">📅 Year</div>
-                <div class="info-value" id="year">—</div>
-            </div>
-        </div>
+            <button onclick="recalculate()" style="background: #667eea; margin-bottom: 10px;">Recalculate</button>
+        </div>        
         
         <div id="results" class="results" style="display: none;">
             <h2>Zero Shadow Days</h2>
             <p style="color: #666; margin-bottom: 15px;">Days when the sun is directly overhead (zero shadow at solar noon):</p>
             <div id="resultsList"></div>
         </div>
+
+        <div id="citiesSection" class="cities-section">
+            <h2>Quick Select: Cities in the Tropics</h2>
+            <table class="cities">
+                <thead>
+                    <tr>
+                        <th>City</th>
+                        <th>Country</th>
+                        <th>Latitude</th>
+                        <th>Longitude</th>
+                        <th>Timezone</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Cities populated dynamically from cityData -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            <p>
+                Created by <a href="https://artem.zavyalov.site" target="_blank">Artem Zavyalov</a>
+                <span class="divider">•</span>
+                <a href="https://github.com/artickl/ZeroShadowDay" target="_blank">View on GitHub</a>
+            </p>
+            <p style="margin-top: 8px; font-size: 13px; color: #999;">
+                Clone the repository: <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">git clone https://github.com/artickl/ZeroShadowDay</code>
+            </p>
+        </div>
     </div>
 
     <script>
+        // City data for URL parameters and table generation
+        const cityData = {
+            'honolulu': { name: 'Honolulu', country: 'USA (Hawaii)', lat: 21.3, lon: -157.8, tz: 'UTC-10' },
+            'quito': { name: 'Quito', country: 'Ecuador', lat: -0.2, lon: -78.5, tz: 'UTC-5' },
+            'rio-de-janeiro': { name: 'Rio de Janeiro', country: 'Brazil', lat: -22.9, lon: -43.2, tz: 'UTC-3' },
+            'accra': { name: 'Accra', country: 'Ghana', lat: 5.55, lon: -0.2, tz: 'UTC+0' },
+            'libreville': { name: 'Libreville', country: 'Gabon', lat: 0.39, lon: 9.45, tz: 'UTC+1' },
+            'lusaka': { name: 'Lusaka', country: 'Zambia', lat: -15.4, lon: 28.3, tz: 'UTC+2' },
+            'kampala': { name: 'Kampala', country: 'Uganda', lat: 0.3, lon: 32.58, tz: 'UTC+3' },
+            'nairobi': { name: 'Nairobi', country: 'Kenya', lat: -1.29, lon: 36.82, tz: 'UTC+3' },
+            'dar-es-salaam': { name: 'Dar es Salaam', country: 'Tanzania', lat: -6.8, lon: 39.3, tz: 'UTC+3' },
+            'mumbai': { name: 'Mumbai', country: 'India', lat: 19.1, lon: 72.9, tz: 'UTC+5.5' },
+            'bangkok': { name: 'Bangkok', country: 'Thailand', lat: 13.7, lon: 100.5, tz: 'UTC+7' },
+            'kuala-lumpur': { name: 'Kuala Lumpur', country: 'Malaysia', lat: 3.14, lon: 101.7, tz: 'UTC+8' },
+            'singapore': { name: 'Singapore', country: 'Singapore', lat: 1.35, lon: 103.82, tz: 'UTC+8' },
+            'jakarta': { name: 'Jakarta', country: 'Indonesia', lat: -6.2, lon: 106.8, tz: 'UTC+7' },
+            'manila': { name: 'Manila', country: 'Philippines', lat: 14.6, lon: 120.98, tz: 'UTC+8' },
+            'darwin': { name: 'Darwin', country: 'Australia', lat: -12.5, lon: 130.8, tz: 'UTC+9.5' },
+            'port-moresby': { name: 'Port Moresby', country: 'Papua New Guinea', lat: -9.45, lon: 147.2, tz: 'UTC+10' }
+        };
+
+        // Generate cities table from cityData
+        function generateCitiesTable() {
+            const tbody = document.querySelector('.cities tbody');
+            tbody.innerHTML = '';
+            
+            for (const [key, city] of Object.entries(cityData)) {
+                const row = document.createElement('tr');
+                
+                // Format latitude and longitude with N/S/E/W
+                const latStr = `${Math.abs(city.lat)} ${city.lat >= 0 ? 'N' : 'S'}`;
+                const lonStr = `${Math.abs(city.lon)} ${city.lon >= 0 ? 'E' : 'W'}`;
+                
+                row.innerHTML = `
+                    <td>${city.name}</td>
+                    <td>${city.country}</td>
+                    <td>${latStr}</td>
+                    <td>${lonStr}</td>
+                    <td>${city.tz}</td>
+                    <td><button class="city-btn" onclick="setCity(${city.lat}, ${city.lon}, '${city.tz}')">Use</button></td>
+                `;
+                
+                tbody.appendChild(row);
+            }
+        }
+
+
+        // Generate cities table from cityData
+        function generateCitiesTable() {
+            const tbody = document.querySelector('.cities tbody');
+            tbody.innerHTML = '';
+            
+            for (const [key, city] of Object.entries(cityData)) {
+                const row = document.createElement('tr');
+                
+                const latDisplay = Math.abs(city.lat).toFixed(2) + (city.lat >= 0 ? ' N' : ' S');
+                const lonDisplay = Math.abs(city.lon).toFixed(2) + (city.lon >= 0 ? ' E' : ' W');
+                
+                row.innerHTML = `
+                    <td>${city.name}</td>
+                    <td>${city.country}</td>
+                    <td>${latDisplay}</td>
+                    <td>${lonDisplay}</td>
+                    <td>${city.tz}</td>
+                    <td><button class="city-btn" onclick="setCity(${city.lat}, ${city.lon}, '${city.tz}')">Use</button></td>
+                `;
+                
+                tbody.appendChild(row);
+            }
+        }
+
+        // Get URL parameter
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // Load city from URL parameter on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            // Generate cities table
+            generateCitiesTable();
+            
+            const cityParam = getUrlParameter('city');
+            if (cityParam) {
+                const cityKey = cityParam.toLowerCase().replace(/\s+/g, '-');
+                const city = cityData[cityKey];
+                if (city) {
+                    // Auto-load the city
+                    setTimeout(() => {
+                        setCity(city.lat, city.lon, city.tz);
+                    }, 100);
+                }
+            }
+        });
+
         // Solar math functions (converted from Python)
         function deg2rad(d) {
             return d * Math.PI / 180.0;
@@ -201,11 +463,24 @@
         }
         
         function getTimezoneOffset(timezone) {
-            const date = new Date();
-            const utcDate = new Date(date.toLocaleString('en-US', {timeZone: 'UTC'}));
-            const tzDate = new Date(date.toLocaleString('en-US', {timeZone: timezone}));
-            const offset = (tzDate - utcDate) / (1000 * 60); // in minutes
-            return offset / 60; // convert to hours
+            // Check if timezone is in UTC+N or UTC-N format
+            const utcOffsetMatch = timezone.match(/^UTC([+-])(\d+(?:\.\d+)?)$/i);
+            if (utcOffsetMatch) {
+                const sign = utcOffsetMatch[1] === '+' ? 1 : -1;
+                const offset = parseFloat(utcOffsetMatch[2]);
+                return sign * offset; // return offset in hours
+            }
+            
+            // Try to use as IANA timezone name
+            try {
+                const date = new Date();
+                const utcDate = new Date(date.toLocaleString('en-US', {timeZone: 'UTC'}));
+                const tzDate = new Date(date.toLocaleString('en-US', {timeZone: timezone}));
+                const offset = (tzDate - utcDate) / (1000 * 60); // in minutes
+                return offset / 60; // convert to hours
+            } catch (e) {
+                throw new Error(`Invalid timezone: ${timezone}. Use IANA timezone (e.g., "America/New_York") or UTC offset (e.g., "UTC+3", "UTC-5")`);
+            }
         }
         
         function solarNoon(dayOfYear, longitude, timezoneOffset) {
@@ -258,6 +533,136 @@
             return Intl.DateTimeFormat().resolvedOptions().timeZone;
         }
         
+        function createGoogleCalendarLink(date, time, timezone, latitude, longitude) {
+            // Parse date and time
+            const [year, month, day] = date.split('-');
+            const [hours, minutes] = time.split(':');
+            
+            // Create Date object in the specified timezone
+            const eventDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hours), parseInt(minutes));
+            
+            // Format for Google Calendar (YYYYMMDDTHHMMSS)
+            const formatDateTime = (d) => {
+                const pad = (n) => String(n).padStart(2, '0');
+                return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+            };
+            
+            const startDateTime = formatDateTime(eventDate);
+            
+            // Event duration: 10 minutes
+            const endDate = new Date(eventDate.getTime() + 10 * 60000);
+            const endDateTime = formatDateTime(endDate);
+            
+            const title = encodeURIComponent('Zero Shadow Day ☀️');
+            const details = encodeURIComponent(
+                `The sun passes directly overhead at solar noon. Vertical objects cast no shadow!\n\n` +
+                `Location: ${latitude.toFixed(4)}°, ${longitude.toFixed(4)}°\n` +
+                `(https://www.google.com/maps/search/?api=1&query=${latitude.toFixed(4)},${longitude.toFixed(4)})\n` +
+                `Date: ${date}\n` +
+                `Time: ${time} ${timezone}\n\n` +
+                `You can read more about Zero Shadow Days here: https://en.wikipedia.org/wiki/Lahaina_Noon`
+            );
+            const location = encodeURIComponent(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
+            
+            return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startDateTime}/${endDateTime}&details=${details}&location=${location}&ctz=${encodeURIComponent(timezone)}`;
+        }
+        
+        function createICSFile(date, time, timezone, latitude, longitude) {
+            // Parse date and time
+            const [year, month, day] = date.split('-');
+            const [hours, minutes] = time.split(':');
+            
+            // Create Date object
+            const eventDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hours), parseInt(minutes));
+            
+            // Format for ICS (YYYYMMDDTHHMMSS)
+            const formatICSDateTime = (d) => {
+                const pad = (n) => String(n).padStart(2, '0');
+                return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+            };
+            
+            const startDateTime = formatICSDateTime(eventDate);
+            
+            // Event duration: 10 minutes
+            const endDate = new Date(eventDate.getTime() + 10 * 60000);
+            const endDateTime = formatICSDateTime(endDate);
+            
+            // Generate unique ID
+            const uid = `zero-shadow-${date}-${latitude.toFixed(4)}-${longitude.toFixed(4)}@zeroshadowday.zavyalov.site`;
+            
+            // Create ICS content
+            const icsContent = [
+                'BEGIN:VCALENDAR',
+                'VERSION:2.0',
+                'PRODID:-//Zero Shadow Day Calculator//EN',
+                'CALSCALE:GREGORIAN',
+                'METHOD:PUBLISH',
+                'BEGIN:VEVENT',
+                `UID:${uid}`,
+                `DTSTAMP:${formatICSDateTime(new Date())}`,
+                `DTSTART:${startDateTime}`,
+                `DTEND:${endDateTime}`,
+                'SUMMARY:Zero Shadow Day ☀️',
+                `DESCRIPTION:The sun passes directly overhead at solar noon. Vertical objects cast no shadow!\\n\\nLocation: ${latitude.toFixed(4)}°\\, ${longitude.toFixed(4)}°\\n( https://www.google.com/maps/search/?api=1&query=${latitude.toFixed(4)},${longitude.toFixed(4)} )\\nDate: ${date}\\nTime: ${time} ${timezone}\\n\\nLearn more: https://en.wikipedia.org/wiki/Lahaina_Noon`,
+                `LOCATION:${latitude.toFixed(4)}\\, ${longitude.toFixed(4)}`,
+                'STATUS:CONFIRMED',
+                'SEQUENCE:0',
+                'BEGIN:VALARM',
+                'TRIGGER:-PT1H',
+                'DESCRIPTION:Zero Shadow Day in 1 hour',
+                'ACTION:DISPLAY',
+                'END:VALARM',
+                'END:VEVENT',
+                'END:VCALENDAR'
+            ].join('\r\n');
+            
+            return icsContent;
+        }
+        
+        function downloadICS(date, time, timezone, latitude, longitude) {
+            const icsContent = createICSFile(date, time, timezone, latitude, longitude);
+            const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `zero-shadow-day-${date}.ics`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        }
+        
+        function createOutlookLink(date, time, timezone, latitude, longitude) {
+            // Parse date and time
+            const [year, month, day] = date.split('-');
+            const [hours, minutes] = time.split(':');
+            
+            // Create Date object
+            const eventDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hours), parseInt(minutes));
+            
+            // Format for Outlook (ISO 8601)
+            const formatOutlookDateTime = (d) => {
+                return d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+            };
+            
+            const startDateTime = formatOutlookDateTime(eventDate);
+            
+            // Event duration: 10 minutes
+            const endDate = new Date(eventDate.getTime() + 10 * 60000);
+            const endDateTime = formatOutlookDateTime(endDate);
+            
+            const subject = encodeURIComponent('Zero Shadow Day ☀️');
+            const body = encodeURIComponent(
+                `The sun passes directly overhead at solar noon. Vertical objects cast no shadow!\n\n` +
+                `Location: ${latitude.toFixed(4)}°, ${longitude.toFixed(4)}°\n` +
+                `Timezone: ${timezone}\n\n` +
+                `Learn more: https://en.wikipedia.org/wiki/Lahaina_Noon`
+            );
+            const location = encodeURIComponent(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
+            
+            return `https://outlook.live.com/calendar/0/deeplink/compose?subject=${subject}&body=${body}&startdt=${startDateTime}&enddt=${endDateTime}&location=${location}&path=/calendar/action/compose&rru=addevent`;
+        }
+        
         function showError(message) {
             const errorDiv = document.getElementById('error');
             errorDiv.textContent = message;
@@ -266,6 +671,121 @@
         
         function hideError() {
             document.getElementById('error').style.display = 'none';
+        }
+        
+        function recalculate() {
+            hideError();
+            
+            const latitude = parseFloat(document.getElementById('latitudeInput').value);
+            const longitude = parseFloat(document.getElementById('longitudeInput').value);
+            const timezone = document.getElementById('timezoneInput').value.trim();
+            const year = parseInt(document.getElementById('yearInput').value);
+            
+            if (isNaN(latitude) || isNaN(longitude) || !timezone || isNaN(year)) {
+                showError('Please fill in all fields with valid values.');
+                return;
+            }
+            
+            if (latitude < -90 || latitude > 90) {
+                showError('Latitude must be between -90 and 90.');
+                return;
+            }
+            
+            if (longitude < -180 || longitude > 180) {
+                showError('Longitude must be between -180 and 180.');
+                return;
+            }
+            
+            if (year < 2000 || year > 2100) {
+                showError('Year must be between 2000 and 2100.');
+                return;
+            }
+            
+            try {
+                performCalculation(latitude, longitude, timezone, year);
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        function setCity(lat, lon, tz) {
+            // Ensure inputs section is visible
+            document.getElementById('info').style.display = 'block';
+            // Set inputs
+            document.getElementById('latitudeInput').value = Number(lat).toFixed(4);
+            document.getElementById('longitudeInput').value = Number(lon).toFixed(4);
+            document.getElementById('timezoneInput').value = tz;
+            document.getElementById('yearInput').value = new Date().getFullYear();
+            
+            // Find city name for URL (reverse lookup)
+            let cityName = '';
+            for (const [key, data] of Object.entries(cityData)) {
+                if (Math.abs(data.lat - lat) < 0.01 && Math.abs(data.lon - lon) < 0.01) {
+                    cityName = key;
+                    break;
+                }
+            }
+            
+            // Update URL without page reload
+            if (cityName) {
+                const newUrl = `${window.location.pathname}?city=${encodeURIComponent(cityName)}`;
+                window.history.pushState({ city: cityName }, '', newUrl);
+            }
+            
+            // Recalculate with these values
+            recalculate();
+        }
+        
+        function performCalculation(latitude, longitude, timezone, year) {
+            // Update input fields with current values
+            document.getElementById('latitudeInput').value = latitude.toFixed(4);
+            document.getElementById('longitudeInput').value = longitude.toFixed(4);
+            document.getElementById('timezoneInput').value = timezone;
+            document.getElementById('yearInput').value = year;
+            document.getElementById('info').style.display = 'block';
+            
+            // Check if location is within tropical zone (23.44° N to 23.44° S)
+            const TropicOfCancer = 23.44;
+            const TropicOfCapricorn = -23.44;
+            
+            const resultsList = document.getElementById('resultsList');
+            resultsList.innerHTML = '';
+            
+            if (latitude > TropicOfCancer || latitude < TropicOfCapricorn) {
+                resultsList.innerHTML = `
+                    <div class="error" style="margin: 0;">
+                        <strong>No zero shadow days at your location.</strong><br>
+                        Zero shadow days only occur between the Tropic of Cancer (23.44° N) and the Tropic of Capricorn (23.44° S).
+                        Your location at ${Math.abs(latitude).toFixed(2)}° ${latitude > 0 ? 'N' : 'S'} is outside this range.
+                    </div>
+                `;
+            } else {
+                // Calculate zero shadow dates
+                const results = calculateZeroShadowDates(latitude, longitude, year, timezone);
+                
+                if (results.length === 0) {
+                    resultsList.innerHTML = '<p style="color: #666;">No zero shadow days at your location this year.</p>';
+                } else {
+                    results.forEach(result => {
+                        const googleLink = createGoogleCalendarLink(result.date, result.time, timezone, latitude, longitude);
+                        const outlookLink = createOutlookLink(result.date, result.time, timezone, latitude, longitude);
+                        const item = document.createElement('div');
+                        item.className = 'result-item';
+                        item.innerHTML = `
+                            <div class="result-date">${result.date}</div>
+                            <div class="result-time">Solar noon: ${result.time} ${timezone}</div>
+                            <div class="calendar-buttons">
+                                <a href="${googleLink}" target="_blank" class="calendar-btn google"><i class="fa-brands fa-google"></i> Google</a>
+                                <a href="${outlookLink}" target="_blank" class="calendar-btn outlook"><i class="fa-brands fa-microsoft"></i> Outlook</a>
+                                <a href="#" onclick="event.preventDefault(); downloadICS('${result.date}', '${result.time}', '${timezone}', ${latitude}, ${longitude});" class="calendar-btn apple"><i class="fa-brands fa-apple"></i> Apple / Other</a>
+                            </div>
+                        `;
+                        resultsList.appendChild(item);
+                    });
+                }
+            }
+            
+            document.getElementById('results').style.display = 'block';
         }
         
         function getLocationAndCalculate() {
@@ -290,48 +810,7 @@
                     const timezone = getUserTimezone();
                     const year = new Date().getFullYear();
                     
-                    // Display info
-                    document.getElementById('latitude').textContent = latitude.toFixed(4);
-                    document.getElementById('longitude').textContent = longitude.toFixed(4);
-                    document.getElementById('timezone').textContent = timezone;
-                    document.getElementById('year').textContent = year;
-                    document.getElementById('info').style.display = 'block';
-                    
-                    // Check if location is within tropical zone (23.44° N to 23.44° S)
-                    const TropicOfCancer = 23.44;
-                    const TropicOfCapricorn = -23.44;
-                    
-                    const resultsList = document.getElementById('resultsList');
-                    resultsList.innerHTML = '';
-                    
-                    if (latitude > TropicOfCancer || latitude < TropicOfCapricorn) {
-                        resultsList.innerHTML = `
-                            <div class="error" style="margin: 0;">
-                                <strong>No zero shadow days at your location.</strong><br>
-                                Zero shadow days only occur between the Tropic of Cancer (23.44° N) and the Tropic of Capricorn (23.44° S).
-                                Your location at ${Math.abs(latitude).toFixed(2)}° ${latitude > 0 ? 'N' : 'S'} is outside this range.
-                            </div>
-                        `;
-                    } else {
-                        // Calculate zero shadow dates
-                        const results = calculateZeroShadowDates(latitude, longitude, year, timezone);
-                        
-                        if (results.length === 0) {
-                            resultsList.innerHTML = '<p style="color: #666;">No zero shadow days at your location this year.</p>';
-                        } else {
-                            results.forEach(result => {
-                                const item = document.createElement('div');
-                                item.className = 'result-item';
-                                item.innerHTML = `
-                                    <div class="result-date">${result.date}</div>
-                                    <div class="result-time">Solar noon: ${result.time} ${timezone}</div>
-                                `;
-                                resultsList.appendChild(item);
-                            });
-                        }
-                    }
-                    
-                    document.getElementById('results').style.display = 'block';
+                    performCalculation(latitude, longitude, timezone, year);
                     loading.style.display = 'none';
                     btn.disabled = false;
                 },
