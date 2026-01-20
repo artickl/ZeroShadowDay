@@ -1,5 +1,7 @@
 # Zero Shadow Day Calculator
 
+🌐 **Try it online**: [https://zeroshadowday.zavyalov.site/](https://zeroshadowday.zavyalov.site/)
+
 **Zero Shadow Day** is a solar phenomenon that occurs when the Sun passes directly overhead at local solar noon.
 At that moment, vertical objects cast little to no shadow.
 
@@ -11,11 +13,15 @@ Most locations within this range experience it **twice each year**, while locati
 The event happens when the Sun’s **declination matches the latitude** of a location. Because the Sun’s declination changes
 continuously throughout the year, the exact date and time depend on both **geographic location** and **year**.
 
-This Python script calculates the **exact date and local solar noon time (down to the minute)** when the zero-shadow event
-occurs for a given location. It uses standard solar position equations to track the Sun’s declination and determines when
+This calculator determines the **exact date and local solar noon time (down to the minute)** when the zero-shadow event
+occurs for a given location. It uses standard solar position equations (NOAA approximations) to track the Sun's declination and determines when
 it aligns with the specified latitude, making it possible to compute the event for **any place in the tropical zone worldwide**.
 
-## Usage
+The calculator is available as:
+- **Web application** ([zeroshadowday.zavyalov.site](https://zeroshadowday.zavyalov.site/)) - runs entirely in the browser using JavaScript, with automatic geolocation detection, city presets, and calendar export features
+- **Python script** (below) - command-line version with the same solar calculation algorithms
+
+## Python Script Usage
 
 1. Edit the configuration section of the script to set your location and year:
 
