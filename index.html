@@ -241,6 +241,61 @@
             margin: 0 8px;
             color: #ccc;
         }
+
+        /* Table wrapper for horizontal scroll on mobile */
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 0 -10px;
+            padding: 0 10px;
+        }
+
+        /* Responsive styles for mobile devices */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            table.cities th, table.cities td {
+                padding: 8px 6px;
+                font-size: 12px;
+            }
+            
+            .city-btn {
+                padding: 4px 8px;
+                font-size: 11px;
+            }
+            
+            /* Stack input fields on mobile */
+            .inputs-section label {
+                display: block;
+                margin-bottom: 15px;
+            }
+            
+            .inputs-section input {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 20px;
+            }
+            
+            table.cities th, table.cities td {
+                padding: 6px 4px;
+                font-size: 11px;
+            }
+            
+            .city-btn {
+                padding: 3px 6px;
+                font-size: 10px;
+            }
+        }
     </style>
 </head>
 <!-- Google tag (gtag.js) -->
@@ -300,21 +355,23 @@
 
         <div id="citiesSection" class="cities-section">
             <h2>Quick Select: Cities in the Tropics</h2>
-            <table class="cities">
-                <thead>
-                    <tr>
-                        <th>City</th>
-                        <th>Country</th>
-                        <th>Latitude</th>
-                        <th>Longitude</th>
-                        <th>Timezone</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Cities populated dynamically from cityData -->
-                </tbody>
-            </table>
+            <div class="table-wrapper">
+                <table class="cities">
+                    <thead>
+                        <tr>
+                            <th>City</th>
+                            <th>Country</th>
+                            <th>Latitude</th>
+                            <th>Longitude</th>
+                            <th>Timezone</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Cities populated dynamically from cityData -->
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <div class="footer">
@@ -772,8 +829,9 @@
                         const item = document.createElement('div');
                         item.className = 'result-item';
                         item.innerHTML = `
-                            <div class="result-date">${result.date}</div>
+                            <div class="result-date">${new Date(result.date + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
                             <div class="result-time">Solar noon: ${result.time} ${timezone}</div>
+                            <div style="margin-top: 10px; color: #666; font-size: 13px; font-weight: 500;">Add this event to your calendar:</div>
                             <div class="calendar-buttons">
                                 <a href="${googleLink}" target="_blank" class="calendar-btn google"><i class="fa-brands fa-google"></i> Google</a>
                                 <a href="${outlookLink}" target="_blank" class="calendar-btn outlook"><i class="fa-brands fa-microsoft"></i> Outlook</a>
