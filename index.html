@@ -34,10 +34,10 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            
+            align-content: center;
+            flex-direction: column;
+            padding: 20px 20px 0 20px;
         }
         
         .container {
@@ -47,6 +47,7 @@
             padding: 40px;
             max-width: 700px;
             width: 100%;
+            margin: 0 auto;
         }
         
         h1 {
@@ -187,6 +188,32 @@
             color: #333;
             font-size: 20px;
             margin-bottom: 10px;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .cities-section h2:hover {
+            color: #667eea;
+        }
+        .cities-toggle-icon {
+            display: inline-block;
+            transition: transform 0.3s ease;
+            font-size: 16px;
+        }
+        .cities-toggle-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+        .cities-content {
+            max-height: 1000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+            opacity: 1;
+        }
+        .cities-content.collapsed {
+            max-height: 0;
+            opacity: 0;
         }
         table.cities {
             width: 100%;
@@ -222,24 +249,27 @@
 
         /* Footer */
         .footer {
-            margin-top: 40px;
-            padding-top: 30px;
-            border-top: 1px solid #e5e7eb;
+            margin-top: auto;
+            padding: 30px 20px;
             text-align: center;
-            color: #666;
-            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 13px;
+            width: 100%;
         }
         .footer a {
-            color: #667eea;
+            color: rgba(255, 255, 255, 0.9);
             text-decoration: none;
             transition: color 0.3s ease;
         }
         .footer a:hover {
-            color: #764ba2;
+            color: #fff;
         }
         .footer .divider {
             margin: 0 8px;
-            color: #ccc;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .footer p {
+            line-height: 1.6;
         }
 
         /* Table wrapper for horizontal scroll on mobile */
@@ -353,8 +383,9 @@
             <div id="resultsList"></div>
         </div>
 
-        <div id="citiesSection" class="cities-section">
-            <h2>Quick Select: Cities in the Tropics</h2>
+        <div id="citiesSection" class="cities-section" style="display: none;">
+            <h2 onclick="toggleCitiesTable()"><span class="cities-toggle-icon">▼</span> Quick Select: Known cities with Zero Shadow Days</h2>
+            <div id="citiesContent" class="cities-content collapsed">
             <div class="table-wrapper">
                 <table class="cities">
                     <thead>
@@ -372,16 +403,18 @@
                     </tbody>
                 </table>
             </div>
+            </div>
         </div>
+    </div>
 
-        <div class="footer">
+    <div class="footer">
             <p>
                 Created by <a href="https://artem.zavyalov.site" target="_blank">Artem Zavyalov</a>
                 <span class="divider">•</span>
                 <a href="https://github.com/artickl/ZeroShadowDay" target="_blank">View on GitHub</a>
             </p>
-            <p style="margin-top: 8px; font-size: 13px; color: #999;">
-                Clone the repository: <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">git clone https://github.com/artickl/ZeroShadowDay</code>
+            <p>
+                Clone the repository: <code style="background: rgb(240, 240, 240, 0.3); padding: 2px 6px; border-radius: 3px; border: 1px solid rgba(255, 255, 255, 0.4);">git clone https://github.com/artickl/ZeroShadowDay</code>
             </p>
         </div>
     </div>
@@ -389,23 +422,23 @@
     <script>
         // City data for URL parameters and table generation
         const cityData = {
-            'honolulu': { name: 'Honolulu', country: 'USA (Hawaii)', lat: 21.3, lon: -157.8, tz: 'UTC-10' },
-            'quito': { name: 'Quito', country: 'Ecuador', lat: -0.2, lon: -78.5, tz: 'UTC-5' },
-            'rio-de-janeiro': { name: 'Rio de Janeiro', country: 'Brazil', lat: -22.9, lon: -43.2, tz: 'UTC-3' },
-            'accra': { name: 'Accra', country: 'Ghana', lat: 5.55, lon: -0.2, tz: 'UTC+0' },
-            'libreville': { name: 'Libreville', country: 'Gabon', lat: 0.39, lon: 9.45, tz: 'UTC+1' },
-            'lusaka': { name: 'Lusaka', country: 'Zambia', lat: -15.4, lon: 28.3, tz: 'UTC+2' },
-            'kampala': { name: 'Kampala', country: 'Uganda', lat: 0.3, lon: 32.58, tz: 'UTC+3' },
-            'nairobi': { name: 'Nairobi', country: 'Kenya', lat: -1.29, lon: 36.82, tz: 'UTC+3' },
-            'dar-es-salaam': { name: 'Dar es Salaam', country: 'Tanzania', lat: -6.8, lon: 39.3, tz: 'UTC+3' },
-            'mumbai': { name: 'Mumbai', country: 'India', lat: 19.1, lon: 72.9, tz: 'UTC+5.5' },
-            'bangkok': { name: 'Bangkok', country: 'Thailand', lat: 13.7, lon: 100.5, tz: 'UTC+7' },
-            'kuala-lumpur': { name: 'Kuala Lumpur', country: 'Malaysia', lat: 3.14, lon: 101.7, tz: 'UTC+8' },
-            'singapore': { name: 'Singapore', country: 'Singapore', lat: 1.35, lon: 103.82, tz: 'UTC+8' },
-            'jakarta': { name: 'Jakarta', country: 'Indonesia', lat: -6.2, lon: 106.8, tz: 'UTC+7' },
-            'manila': { name: 'Manila', country: 'Philippines', lat: 14.6, lon: 120.98, tz: 'UTC+8' },
-            'darwin': { name: 'Darwin', country: 'Australia', lat: -12.5, lon: 130.8, tz: 'UTC+9.5' },
-            'port-moresby': { name: 'Port Moresby', country: 'Papua New Guinea', lat: -9.45, lon: 147.2, tz: 'UTC+10' }
+            'honolulu': { name: 'Honolulu', country: 'USA (Hawaii)', lat: 21.3, lon: -157.8, tz: 'Pacific/Honolulu' },
+            'quito': { name: 'Quito', country: 'Ecuador', lat: -0.2, lon: -78.5, tz: 'America/Guayaquil' },
+            'rio-de-janeiro': { name: 'Rio de Janeiro', country: 'Brazil', lat: -22.9, lon: -43.2, tz: 'America/Sao_Paulo' },
+            'accra': { name: 'Accra', country: 'Ghana', lat: 5.55, lon: -0.2, tz: 'Africa/Accra' },
+            'libreville': { name: 'Libreville', country: 'Gabon', lat: 0.39, lon: 9.45, tz: 'Africa/Libreville' },
+            'lusaka': { name: 'Lusaka', country: 'Zambia', lat: -15.4, lon: 28.3, tz: 'Africa/Lusaka' },
+            'kampala': { name: 'Kampala', country: 'Uganda', lat: 0.3, lon: 32.58, tz: 'Africa/Kampala' },
+            'nairobi': { name: 'Nairobi', country: 'Kenya', lat: -1.29, lon: 36.82, tz: 'Africa/Nairobi' },
+            'dar-es-salaam': { name: 'Dar es Salaam', country: 'Tanzania', lat: -6.8, lon: 39.3, tz: 'Africa/Dar_es_Salaam' },
+            'mumbai': { name: 'Mumbai', country: 'India', lat: 19.1, lon: 72.9, tz: 'Asia/Kolkata' },
+            'bangkok': { name: 'Bangkok', country: 'Thailand', lat: 13.7, lon: 100.5, tz: 'Asia/Bangkok' },
+            'kuala-lumpur': { name: 'Kuala Lumpur', country: 'Malaysia', lat: 3.14, lon: 101.7, tz: 'Asia/Kuala_Lumpur' },
+            'singapore': { name: 'Singapore', country: 'Singapore', lat: 1.35, lon: 103.82, tz: 'Asia/Singapore' },
+            'jakarta': { name: 'Jakarta', country: 'Indonesia', lat: -6.2, lon: 106.8, tz: 'Asia/Jakarta' },
+            'manila': { name: 'Manila', country: 'Philippines', lat: 14.6, lon: 120.98, tz: 'Asia/Manila' },
+            'darwin': { name: 'Darwin', country: 'Australia', lat: -12.5, lon: 130.8, tz: 'Australia/Darwin' },
+            'port-moresby': { name: 'Port Moresby', country: 'Papua New Guinea', lat: -9.45, lon: 147.2, tz: 'Pacific/Port_Moresby' }
         };
 
         // Generate cities table from cityData
@@ -456,6 +489,15 @@
                 
                 tbody.appendChild(row);
             }
+        }
+
+        // Toggle cities table visibility
+        function toggleCitiesTable() {
+            const citiesContent = document.getElementById('citiesContent');
+            const toggle = document.querySelector('.cities-toggle-icon');
+            
+            citiesContent.classList.toggle('collapsed');
+            toggle.classList.toggle('collapsed');
         }
 
         // Get URL parameter
@@ -637,6 +679,12 @@
                 const pad = (n) => String(n).padStart(2, '0');
                 return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
             };
+
+            const formatICSDateTimeUTC = (d) => {
+                const pad = (n) => String(n).padStart(2, '0');
+                const utc = new Date(d.getTime() + (d.getTimezoneOffset() * 60000)); // Adjust to UTC
+                return `${utc.getFullYear()}${pad(utc.getMonth() + 1)}${pad(utc.getDate())}T${pad(utc.getHours())}${pad(utc.getMinutes())}00Z`;
+            };
             
             const startDateTime = formatICSDateTime(eventDate);
             
@@ -656,11 +704,11 @@
                 'METHOD:PUBLISH',
                 'BEGIN:VEVENT',
                 `UID:${uid}`,
-                `DTSTAMP:${formatICSDateTime(new Date())}`,
-                `DTSTART:${startDateTime}`,
-                `DTEND:${endDateTime}`,
+                `DTSTAMP:${formatICSDateTimeUTC(new Date())}`,
+                `DTSTART;TZID=${timezone}:${startDateTime}`,
+                `DTEND;TZID=${timezone}:${endDateTime}`,
                 'SUMMARY:Zero Shadow Day ☀️',
-                `DESCRIPTION:The sun passes directly overhead at solar noon. Vertical objects cast no shadow!\\n\\nLocation: ${latitude.toFixed(4)}°\\, ${longitude.toFixed(4)}°\\n( https://www.google.com/maps/search/?api=1&query=${latitude.toFixed(4)},${longitude.toFixed(4)} )\\nDate: ${date}\\nTime: ${time} ${timezone}\\n\\nLearn more: https://en.wikipedia.org/wiki/Lahaina_Noon`,
+                `DESCRIPTION:The sun passes directly overhead at solar noon.\\r\\n Vertical objects cast no shadow!\\n\\nLocation:\\r\\n${latitude.toFixed(4)}°\\, ${longitude.toFixed(4)}°\\r\\n( https://www.google.com/maps/search/?api=1&query=${latitude.toFixed(4)},${longitude.toFixed(4)} )\\r\\n Date: ${date}\\nTime: ${time} ${timezone}\\r\\n Learn more: https://en.wikipedia.org/wiki/Lahaina_Noon`,
                 `LOCATION:${latitude.toFixed(4)}\\, ${longitude.toFixed(4)}`,
                 'STATUS:CONFIRMED',
                 'SEQUENCE:0',
@@ -712,9 +760,12 @@
             const body = encodeURIComponent(
                 `The sun passes directly overhead at solar noon. Vertical objects cast no shadow!\n\n` +
                 `Location: ${latitude.toFixed(4)}°, ${longitude.toFixed(4)}°\n` +
-                `Timezone: ${timezone}\n\n` +
-                `Learn more: https://en.wikipedia.org/wiki/Lahaina_Noon`
+                `(https://www.google.com/maps/search/?api=1&query=${latitude.toFixed(4)},${longitude.toFixed(4)})\n` +
+                `Date: ${date}\n` +
+                `Time: ${time} ${timezone}\n\n` +
+                `You can read more about Zero Shadow Days here: https://en.wikipedia.org/wiki/Lahaina_Noon`
             );
+
             const location = encodeURIComponent(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
             
             return `https://outlook.live.com/calendar/0/deeplink/compose?subject=${subject}&body=${body}&startdt=${startDateTime}&enddt=${endDateTime}&location=${location}&path=/calendar/action/compose&rru=addevent`;
@@ -768,6 +819,7 @@
         function setCity(lat, lon, tz) {
             // Ensure inputs section is visible
             document.getElementById('info').style.display = 'block';
+            document.getElementById('citiesSection').style.display = 'block';
             // Set inputs
             document.getElementById('latitudeInput').value = Number(lat).toFixed(4);
             document.getElementById('longitudeInput').value = Number(lon).toFixed(4);
@@ -800,6 +852,7 @@
             document.getElementById('timezoneInput').value = timezone;
             document.getElementById('yearInput').value = year;
             document.getElementById('info').style.display = 'block';
+            document.getElementById('citiesSection').style.display = 'block';
             
             // Check if location is within tropical zone (23.44° N to 23.44° S)
             const TropicOfCancer = 23.44;
@@ -850,14 +903,23 @@
             hideError();
             const btn = document.getElementById('getLocationBtn');
             const loading = document.getElementById('loading');
+            const citiesselection = document.getElementById('citiesSection');
+            const info = document.getElementById('info');
+
+            document.getElementById('timezoneInput').value = getUserTimezone();
+            document.getElementById('yearInput').value = new Date().getFullYear();
             
             btn.disabled = true;
             loading.style.display = 'block';
+            citiesselection.style.display = 'block';
+            info.style.display = 'block';
             
             if (!navigator.geolocation) {
                 showError('Geolocation is not supported by your browser.');
                 btn.disabled = false;
                 loading.style.display = 'none';
+                citiesselection.style.display = 'block';
+                info.style.display = 'block';
                 return;
             }
             
@@ -870,17 +932,21 @@
                     
                     performCalculation(latitude, longitude, timezone, year);
                     loading.style.display = 'none';
+                    citiesselection.style.display = 'block';
+                    info.style.display = 'block';
                     btn.disabled = false;
                 },
                 (error) => {
                     let message = 'Unable to get your location.';
                     if (error.code === error.PERMISSION_DENIED) {
-                        message = 'Location permission denied. Please enable location access in your browser settings.';
+                        message = 'Location permission denied. Please enable location access in your browser settings. Please fill up information below manually.';
                     } else if (error.code === error.TIMEOUT) {
                         message = 'Location request timed out.';
                     }
                     showError(message);
                     loading.style.display = 'none';
+                    citiesselection.style.display = 'block';
+                    info.style.display = 'block';
                     btn.disabled = false;
                 }
             );
