@@ -65,14 +65,7 @@
         }
         
         .info-label {
-            font-weight: 600;
-            color: #555;
-            margin-bottom: 5px;
-        }
-        
-        .info-value {
-            color: #333;
-            font-size: 16px;
+            color: #666;
         }
         
         button {
@@ -346,7 +339,7 @@
             <br>
             <a href="https://en.wikipedia.org/wiki/Lahaina_Noon" target="_blank" style="color: #667eea; text-decoration: none; font-weight: 500;">Learn more on Wikipedia →</a>
         </p>
-        
+       
         <button id="getLocationBtn" onclick="getLocationAndCalculate()">Get My Location & Calculate</button>
         
         <div id="error" class="error" style="display: none;"></div>
@@ -383,8 +376,12 @@
             <div id="resultsList"></div>
         </div>
 
+        <div id="nextCitySection" class="info-section" style="display: none;">
+            <div class="info-value" id="nextCityContent"></div>
+        </div>
+
         <div id="citiesSection" class="cities-section" style="display: none;">
-            <h2 onclick="toggleCitiesTable()"><span class="cities-toggle-icon">▼</span> Quick Select: Known cities with Zero Shadow Days</h2>
+            <h2 onclick="toggleCitiesTable()"><span class="cities-toggle-icon">▼</span>Find a list of other cities below!</h2>
             <div id="citiesContent" class="cities-content collapsed">
             <div class="table-wrapper">
                 <table class="cities">
@@ -440,6 +437,71 @@
             'darwin': { name: 'Darwin', country: 'Australia', lat: -12.5, lon: 130.8, tz: 'Australia/Darwin' },
             'port-moresby': { name: 'Port Moresby', country: 'Papua New Guinea', lat: -9.45, lon: 147.2, tz: 'Pacific/Port_Moresby' }
         };
+
+        function toUtcDate(dateStr, timeStr, timezone) {
+            const [year, month, day] = dateStr.split('-').map(Number);
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            const offsetHours = getTimezoneOffset(timezone);
+            const utcMillis = Date.UTC(year, month - 1, day, hours, minutes) - offsetHours * 3600000;
+            return new Date(utcMillis);
+        }
+
+        function findNextEventForCity(city, fromDate) {
+            const yearsToCheck = [fromDate.getFullYear(), fromDate.getFullYear() + 1];
+            let best = null;
+            
+            for (const year of yearsToCheck) {
+                const events = calculateZeroShadowDates(city.lat, city.lon, year, city.tz);
+                for (const evt of events) {
+                    const utcDate = toUtcDate(evt.date, evt.time, city.tz);
+                    if (utcDate > fromDate) {
+                        if (!best || utcDate < best.utcDate) {
+                            best = { ...evt, utcDate, year };
+                        }
+                    }
+                }
+            }
+            
+            return best;
+        }
+
+        function updateNextCityBanner() {
+            const container = document.getElementById('nextCitySection');
+            const content = document.getElementById('nextCityContent');
+            if (!container || !content) return;
+            
+            const now = new Date();
+            let bestOverall = null;
+            
+            for (const city of Object.values(cityData)) {
+                try {
+                    const nextEvent = findNextEventForCity(city, now);
+                    if (nextEvent && (!bestOverall || nextEvent.utcDate < bestOverall.utcDate)) {
+                        bestOverall = { ...nextEvent, city };
+                    }
+                } catch (e) {
+                    // Skip invalid timezone entries if any
+                }
+            }
+            
+            if (bestOverall) {
+                const localDateStr = bestOverall.utcDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                const mapLink = `https://www.google.com/maps/search/?api=1&query=${bestOverall.city.lat},${bestOverall.city.lon}`;
+                content.innerHTML = `
+                    <div class="info-label">
+                        <p>
+                            <a href="${mapLink}" target="_blank" style="color: #667eea; text-decoration: none; font-weight: 500;">
+                                ${bestOverall.city.name}, ${bestOverall.city.country}
+                            </a>
+                            is the next Zero Shadow Day location. It will occur on ${localDateStr} at ${bestOverall.time} local time.
+                        </p>
+                    </div>
+                `;
+                //container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+            }
+        }
 
         // Generate cities table from cityData
         function generateCitiesTable() {
@@ -510,6 +572,7 @@
         window.addEventListener('DOMContentLoaded', function() {
             // Generate cities table
             generateCitiesTable();
+            updateNextCityBanner();
             
             const cityParam = getUrlParameter('city');
             if (cityParam) {
@@ -819,6 +882,7 @@
         function setCity(lat, lon, tz) {
             // Ensure inputs section is visible
             document.getElementById('info').style.display = 'block';
+            document.getElementById('nextCitySection').style.display = 'block';
             document.getElementById('citiesSection').style.display = 'block';
             // Set inputs
             document.getElementById('latitudeInput').value = Number(lat).toFixed(4);
@@ -844,6 +908,31 @@
             // Recalculate with these values
             recalculate();
         }
+
+        function setCityWithYear(lat, lon, tz, year) {
+            document.getElementById('info').style.display = 'block';
+            document.getElementById('nextCitySection').style.display = 'block';
+            document.getElementById('citiesSection').style.display = 'block';
+            document.getElementById('latitudeInput').value = Number(lat).toFixed(4);
+            document.getElementById('longitudeInput').value = Number(lon).toFixed(4);
+            document.getElementById('timezoneInput').value = tz;
+            document.getElementById('yearInput').value = year;
+            
+            let cityName = '';
+            for (const [key, data] of Object.entries(cityData)) {
+                if (Math.abs(data.lat - lat) < 0.01 && Math.abs(data.lon - lon) < 0.01) {
+                    cityName = key;
+                    break;
+                }
+            }
+            
+            if (cityName) {
+                const newUrl = `${window.location.pathname}?city=${encodeURIComponent(cityName)}`;
+                window.history.pushState({ city: cityName }, '', newUrl);
+            }
+            
+            performCalculation(lat, lon, tz, year);
+        }
         
         function performCalculation(latitude, longitude, timezone, year) {
             // Update input fields with current values
@@ -852,6 +941,7 @@
             document.getElementById('timezoneInput').value = timezone;
             document.getElementById('yearInput').value = year;
             document.getElementById('info').style.display = 'block';
+            document.getElementById('nextCitySection').style.display = 'block';
             document.getElementById('citiesSection').style.display = 'block';
             
             // Check if location is within tropical zone (23.44° N to 23.44° S)
@@ -863,7 +953,7 @@
             
             if (latitude > TropicOfCancer || latitude < TropicOfCapricorn) {
                 resultsList.innerHTML = `
-                    <div class="error" style="margin: 0;">
+                    <div class="error" style="margin-bottom: 10px;">
                         <strong>No zero shadow days at your location.</strong><br>
                         Zero shadow days only occur between the Tropic of Cancer (23.44° N) and the Tropic of Capricorn (23.44° S).
                         Your location at ${Math.abs(latitude).toFixed(2)}° ${latitude > 0 ? 'N' : 'S'} is outside this range.
@@ -903,6 +993,7 @@
             hideError();
             const btn = document.getElementById('getLocationBtn');
             const loading = document.getElementById('loading');
+            const nextcity = document.getElementById('nextCitySection');
             const citiesselection = document.getElementById('citiesSection');
             const info = document.getElementById('info');
 
@@ -912,12 +1003,14 @@
             btn.disabled = true;
             loading.style.display = 'block';
             citiesselection.style.display = 'block';
+            nextcity.style.display = 'block';
             info.style.display = 'block';
             
             if (!navigator.geolocation) {
                 showError('Geolocation is not supported by your browser.');
                 btn.disabled = false;
                 loading.style.display = 'none';
+                nextcity.style.display = 'block';
                 citiesselection.style.display = 'block';
                 info.style.display = 'block';
                 return;
@@ -932,6 +1025,7 @@
                     
                     performCalculation(latitude, longitude, timezone, year);
                     loading.style.display = 'none';
+                    nextcity.style.display = 'block';
                     citiesselection.style.display = 'block';
                     info.style.display = 'block';
                     btn.disabled = false;
@@ -945,6 +1039,7 @@
                     }
                     showError(message);
                     loading.style.display = 'none';
+                    nextcity.style.display = 'block';
                     citiesselection.style.display = 'block';
                     info.style.display = 'block';
                     btn.disabled = false;
