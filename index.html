@@ -885,6 +885,9 @@
         }
 
         function setCity(lat, lon, tz) {
+            // Scroll to top smoothly
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
             // Ensure inputs section is visible
             document.getElementById('info').style.display = 'block';
             document.getElementById('nextCitySection').style.display = 'block';
